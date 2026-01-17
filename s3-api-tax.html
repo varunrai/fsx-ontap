@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FSxN + S3: The 4MB Aggregation Engine | AWS FSxN</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Discover how Amazon FSx for NetApp ONTAP eliminates the S3 API tax by aggregating 4KB blocks into 4MB objects. Reduce API costs by 99.9% with FabricPool technology and intelligent data tiering.">
+    <meta name="keywords" content="AWS FSxN, S3 API costs, FabricPool, ONTAP tiering, S3 optimization, API request reduction, cloud storage efficiency, NetApp ONTAP, 4MB aggregation, data lakehouse">
+    <meta name="author" content="AWS FSxN">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://aws-fsxn.github.io/s3-api-tax.html">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://aws-fsxn.github.io/s3-api-tax.html">
+    <meta property="og:title" content="FSxN + S3: The 4MB Aggregation Engine">
+    <meta property="og:description" content="Eliminate the S3 API tax with FSx ONTAP's 4MB aggregation. Reduce API costs by 99.9% with FabricPool technology and intelligent data tiering.">
+    <meta property="og:site_name" content="AWS FSxN">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://aws-fsxn.github.io/s3-api-tax.html">
+    <meta name="twitter:title" content="FSxN + S3: The 4MB Aggregation Engine">
+    <meta name="twitter:description" content="Discover how FSx ONTAP eliminates the S3 API tax by aggregating 4KB blocks into 4MB objects, reducing costs by 99.9%.">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "headline": "FSxN + S3: The 4MB Aggregation Engine",
+        "description": "Discover how Amazon FSx for NetApp ONTAP eliminates the S3 API tax by aggregating 4KB blocks into 4MB objects. Reduce API costs by 99.9% with FabricPool technology and intelligent data tiering.",
+        "author": {
+            "@type": "Organization",
+            "name": "AWS FSxN"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "AWS FSxN"
+        },
+        "datePublished": "2026-01-17",
+        "dateModified": "2026-01-17",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "https://aws-fsxn.github.io/s3-api-tax.html"
+        },
+        "about": [
+            {
+                "@type": "Thing",
+                "name": "S3 API Optimization"
+            },
+            {
+                "@type": "Thing",
+                "name": "Cloud Storage Cost Reduction"
+            },
+            {
+                "@type": "Thing",
+                "name": "Data Aggregation"
+            }
+        ],
+        "keywords": "S3 API costs, FabricPool, ONTAP tiering, cloud storage efficiency"
+    }
+    </script>
+    <style>
+        /* Palette: Brilliant Blues & High-Contrast Amber */
+        :root {
+            --primary: #1E3A8A; /* Blue 900 */
+            --secondary: #3B82F6; /* Blue 500 */
+            --accent: #F59E0B; /* Amber 500 */
+            --danger: #EF4444; /* Red 500 */
+            --success: #10B981; /* Emerald 500 */
+            --bg-canvas: #F8FAFC;
+        }
+
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background-color: var(--bg-canvas); color: #1E293B; }
+        
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+
+        .logic-card {
+            @apply bg-white p-6 rounded-3xl shadow-sm border border-slate-200 transition-all hover:shadow-md;
+        }
+
+        .metric-badge {
+            @apply px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider;
+        }
+
+        /* 4KB Block Representation */
+        .block-unit {
+            width: 8px;
+            height: 8px;
+            background-color: var(--secondary);
+            border-radius: 1px;
+            display: inline-block;
+            margin: 1px;
+        }
+    </style>
+    <!-- 
+        NARRATIVE PLAN:
+        1. THE PROBLEM: The S3 API "Small File" Tax (Visualizing the request overhead).
+        2. THE SOLUTION: FabricPool Packaging (1,024 blocks -> 1 Object).
+        3. THE MULTIPLIER: Deduplication & Compression (Shrinking data before it hits S3).
+        4. COST MATH: Logarithmic comparison of API requests.
+        5. REAL WORLD: Apache Hudi Lakehouse Scenario.
+        
+        VISUALIZATION CHOICES (NO SVG):
+        - API Request Volume: Logarithmic Bar Chart (Chart.js) -> Massive scale difference.
+        - Storage Footprint: Stacked Bar (Chart.js) -> Showing shrinkage via dedupe.
+        - Packaging Mechanism: CSS Grid blocks to represent block-level aggregation.
+    -->
+</head>
+<body class="p-4 md:p-10">
+
+    <!-- HERO SECTION -->
+    <header class="max-w-6xl mx-auto text-center mb-16">
+        <div class="inline-block px-4 py-1 mb-4 text-[10px] font-black tracking-widest text-white bg-blue-600 rounded-full uppercase">
+            Financial Architecture Deep Dive
+        </div>
+        <h1 class="text-4xl md:text-6xl font-black text-slate-900 tracking-tight mb-4">
+            The <span class="text-blue-700">4MB Secret</span>
+        </h1>
+        <p class="text-xl text-slate-600 max-w-3xl mx-auto">
+            Stop paying for S3 API requests. Discover how <strong>Amazon FSx for NetApp ONTAP</strong> aggregates 4KB blocks into 4MB objects to slash TCO by 99%.
+        </p>
+    </header>
+
+    <main class="max-w-7xl mx-auto space-y-12">
+
+        <!-- SECTION 1: THE ANATOMY OF A SAVING -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+            <div class="space-y-6">
+                <h2 class="text-3xl font-bold">1. How Aggregation Works</h2>
+                <p class="text-slate-600 leading-relaxed">
+                    S3 pricing is split between <strong>Storage</strong> and <strong>Requests</strong>. In a native S3 environment, 1,000 small files trigger 1,000 expensive `PUT` requests. FabricPool fixes this by bundling data.
+                </p>
+                <div class="logic-card bg-slate-900 text-white border-none">
+                    <div class="text-xs font-bold text-blue-400 mb-4 uppercase">The Packaging Logic</div>
+                    <div class="flex flex-col gap-4">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-blue-600/20 rounded-lg flex items-center justify-center border border-blue-500/30">
+                                🧊
+                            </div>
+                            <div>
+                                <p class="font-bold text-sm">Input: 1,024 Blocks</p>
+                                <p class="text-[10px] text-slate-400">ONTAP collects blocks of 4KB each from the volume.</p>
+                            </div>
+                        </div>
+                        <div class="h-6 flex items-center justify-center text-slate-600">▼</div>
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-emerald-600/20 rounded-lg flex items-center justify-center border border-emerald-500/30">
+                                📦
+                            </div>
+                            <div>
+                                <p class="font-bold text-sm text-emerald-400">Output: 1 Object</p>
+                                <p class="text-[10px] text-slate-400">One single 4MB object is written to S3 via one `PUT` request.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CSS Block Visualizer -->
+            <div class="logic-card overflow-hidden">
+                <h4 class="text-sm font-bold mb-4 text-center">Visualizing 1,024:1 Request Reduction</h4>
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 flex flex-wrap justify-center overflow-hidden h-48 content-start">
+                    <!-- Generating a grid of small blocks -->
+                    <script>
+                        for(let i=0; i<400; i++) {
+                            document.write('<div class="block-unit"></div>');
+                        }
+                    </script>
+                    <div class="w-full text-center mt-2 text-[10px] font-bold text-slate-400 italic">... and 624 more blocks ...</div>
+                </div>
+                <div class="flex justify-center my-4 text-slate-300">▼</div>
+                <div class="bg-emerald-600 text-white font-black text-center py-4 rounded-xl shadow-lg">
+                    ONE 4MB S3 OBJECT
+                </div>
+                <p class="text-center text-[10px] mt-2 text-slate-500">99.9% Reduction in S3 API Call Volume</p>
+            </div>
+        </section>
+
+        <!-- SECTION 2: THE EFFICIENCY MULTIPLIER -->
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="logic-card">
+                <h3 class="text-xl font-bold mb-4">The Efficiency Multiplier</h3>
+                <p class="text-sm text-slate-600 mb-6">
+                    Unlike native S3, ONTAP applies <strong>In-Line Deduplication and Compression</strong> *before* data is tiered. You pay for less storage AND fewer requests.
+                </p>
+                <div class="chart-container">
+                    <canvas id="efficiencyChart"></canvas>
+                </div>
+            </div>
+            <div class="flex flex-col justify-center space-y-6">
+                <div class="p-4 bg-blue-50 rounded-2xl border-l-4 border-blue-600">
+                    <h4 class="font-bold text-blue-900 text-sm">1. Deduplication</h4>
+                    <p class="text-xs text-blue-800">Identical blocks across your volume are stored only once. This shrinks the block set before the 4MB packaging begins.</p>
+                </div>
+                <div class="p-4 bg-blue-50 rounded-2xl border-l-4 border-blue-600">
+                    <h4 class="font-bold text-blue-900 text-sm">2. Compression</h4>
+                    <p class="text-xs text-blue-800">Remaining unique blocks are compressed. A 4KB block often shrinks to 1KB or less, allowing more "effective data" to fit in that 4MB object.</p>
+                </div>
+                <div class="p-4 bg-emerald-50 rounded-2xl border-l-4 border-emerald-600">
+                    <h4 class="font-bold text-emerald-900 text-sm">3. Compaction</h4>
+                    <p class="text-xs text-emerald-800">Tiny blocks are packed together to maximize the utilization of every single I/O operation.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: COST COMPARISON (LOGARITHMIC) -->
+        <section class="logic-card">
+            <h3 class="text-2xl font-bold mb-8 text-center">Comparing API Request Volume</h3>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2">
+                    <div class="chart-container">
+                        <canvas id="costChart"></canvas>
+                    </div>
+                </div>
+                <div class="bg-slate-50 p-6 rounded-2xl flex flex-col justify-center">
+                    <div class="text-xs font-bold text-slate-400 mb-4">THE MATH (Per 100GB Ingest)</div>
+                    <div class="space-y-4">
+                        <div class="flex justify-between border-b pb-2">
+                            <span class="text-xs">Native S3 Requests</span>
+                            <span class="text-xs font-bold text-red-600">25,000,000</span>
+                        </div>
+                        <div class="flex justify-between border-b pb-2">
+                            <span class="text-xs">FSxN Requests</span>
+                            <span class="text-xs font-bold text-emerald-600">25,000</span>
+                        </div>
+                        <div class="flex justify-between pt-2">
+                            <span class="text-xs font-bold">API Cost Reduction</span>
+                            <span class="text-sm font-black text-emerald-600">99.9%</span>
+                        </div>
+                    </div>
+                    <p class="text-[9px] text-slate-400 mt-6 leading-relaxed">
+                        *Assuming 4KB average file size. Request costs based on S3 Standard `PUT` charges. Logarithmic scale used to show magnitude.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: REAL WORLD HUDI SCENARIO -->
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
+            <div class="logic-card bg-indigo-900 text-white border-none flex flex-col justify-center">
+                <h3 class="text-xl font-bold mb-4">The Hudi Lakehouse Edge</h3>
+                <p class="text-sm text-indigo-100 mb-6">
+                    Apache Hudi creates thousands of small parquet/log files per commit. Pointing Hudi to FSxN instead of direct S3 prevents the "Request Cost Avalanche."
+                </p>
+                <ul class="space-y-3">
+                    <li class="flex gap-2 text-xs">
+                        <span class="text-emerald-400 font-bold">✓</span>
+                        <span><strong>Metadata Stays Local:</strong> `LIST` operations run on SSD, not S3 APIs.</span>
+                    </li>
+                    <li class="flex gap-2 text-xs">
+                        <span class="text-emerald-400 font-bold">✓</span>
+                        <span><strong>Zero Latency Commits:</strong> Writes land on NVMe flash before background tiering.</span>
+                    </li>
+                    <li class="flex gap-2 text-xs">
+                        <span class="text-emerald-400 font-bold">✓</span>
+                        <span><strong>Instant Recoverability:</strong> Revert failed Hudi commits via FSx Snapshots.</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="logic-card border-2 border-indigo-100 bg-indigo-50/30">
+                <h3 class="text-xl font-bold mb-4 text-indigo-900">Strategic Performance</h3>
+                <p class="text-sm text-slate-600 mb-6">Using FSxN as the "Hot" layer for your data lakehouse eliminates S3's eventual consistency issues during critical write operations.</p>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="p-3 bg-white rounded-xl shadow-sm">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Read Latency</p>
+                        <p class="text-xl font-black text-blue-600">Sub-ms</p>
+                        <p class="text-[8px] text-slate-400">on Primary Tier</p>
+                    </div>
+                    <div class="p-3 bg-white rounded-xl shadow-sm">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Consistency</p>
+                        <p class="text-xl font-black text-blue-600">Strong</p>
+                        <p class="text-[8px] text-slate-400">File-level Locking</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="max-w-4xl mx-auto py-20 text-center text-slate-400 text-[10px] uppercase tracking-widest font-bold">
+        
+    </footer>
+
+    <script>
+        // --- HELPER: LABEL WRAPPING (16 Chars) ---
+        function wrapLabel(label) {
+            if (label.length <= 16) return label;
+            const words = label.split(' ');
+            const lines = [];
+            let currentLine = "";
+            words.forEach(w => {
+                if ((currentLine + w).length > 16) {
+                    lines.push(currentLine.trim());
+                    currentLine = w + " ";
+                } else {
+                    currentLine += w + " ";
+                }
+            });
+            lines.push(currentLine.trim());
+            return lines;
+        }
+
+        // --- COMMON TOOLTIP CONFIG ---
+        const commonTooltip = {
+            callbacks: {
+                title: function(tooltipItems) {
+                    const item = tooltipItems[0];
+                    let label = item.chart.data.labels[item.dataIndex];
+                    return Array.isArray(label) ? label.join(' ') : label;
+                }
+            }
+        };
+
+        // --- CHART 1: EFFICIENCY STACKED BAR ---
+        const effCtx = document.getElementById('efficiencyChart').getContext('2d');
+        new Chart(effCtx, {
+            type: 'bar',
+            data: {
+                labels: [wrapLabel('Raw Data Footprint'), wrapLabel('FSxN Optimized')],
+                datasets: [
+                    {
+                        label: 'Actual Data',
+                        data: [100, 35],
+                        backgroundColor: '#1E3A8A',
+                        borderRadius: 8
+                    },
+                    {
+                        label: 'Savings Multiplier',
+                        data: [0, 65],
+                        backgroundColor: '#10B981',
+                        borderRadius: 8
+                    }
+                ]
+            },
+            options: {
+                maintainAspectRatio: false,
+                responsive: true,
+                plugins: {
+                    tooltip: commonTooltip,
+                    legend: { position: 'bottom' },
+                    title: { display: true, text: 'Data Shrinkage Before Tiering (%)' }
+                },
+                scales: {
+                    x: { stacked: true },
+                    y: { stacked: true, beginAtZero: true, max: 100 }
+                }
+            }
+        });
+
+        // --- CHART 2: COST COMPARISON (LOGARITHMIC) ---
+        const costCtx = document.getElementById('costChart').getContext('2d');
+        new Chart(costCtx, {
+            type: 'bar',
+            data: {
+                labels: [wrapLabel('Native S3 (Small Files)'), wrapLabel('FSxN FabricPool')],
+                datasets: [{
+                    label: 'S3 API PUT Requests',
+                    data: [25000000, 25000],
+                    backgroundColor: ['#EF4444', '#10B981'],
+                    borderRadius: 10
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                responsive: true,
+                plugins: {
+                    tooltip: commonTooltip,
+                    legend: { display: false }
+                },
+                scales: {
+                    y: { 
+                        type: 'logarithmic',
+                        beginAtZero: false,
+                        title: { display: true, text: 'Requests (Logarithmic Scale)' }
+                    }
+                }
+            }
+        });
+    </script>
+    
+    <!-- Navigation -->
+    <script src="navigation.js"></script>
+</body>
+</html>
+
